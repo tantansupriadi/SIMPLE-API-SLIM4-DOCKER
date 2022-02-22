@@ -1,11 +1,12 @@
 Mini api for julo test
 
-- api without database
-- validation are ignored
-
 how to run
 
 - clone the repo on your local environment
-- run composer intstall : composer install --ignore-platform-reqs
+- run composer intstall
+- docker compose build
 - docker compose up
+- import data from phpmyadmin database is on folder mysql
 - basepath will run on http://localhost:8080
+- phpmyadmin will run on http://localhost:8081
+- user : tantan pass : 12345
