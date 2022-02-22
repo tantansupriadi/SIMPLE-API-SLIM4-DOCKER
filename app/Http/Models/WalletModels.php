@@ -87,6 +87,24 @@ class WalletModels
         }
         return $cek_wallet[0]->id;
     }
+
+
+    public static function transactions($depo,$lastBalance)
+    { 
+            $db = new DB();
+            $conn = $db->connect();
+            $sql = "INSERT INTO transaction (id,amount,reference_id,owned_by,wallet_id,type) values (?,?,?,?,?,?)";
+            $stmt = $conn->prepare($sql);
+            $trans =  $stmt->execute($depo);
+
+            if($trans){
+                $sql = "UPDATE  wallet SET  saldo = ?  where owned_by = ?";
+                $stmt = $conn->prepare($sql);
+                $update =  $stmt->execute([$lastBalance,$depo[3]]);
+            }
+            return $update ;
+        
+    }
     
    
 

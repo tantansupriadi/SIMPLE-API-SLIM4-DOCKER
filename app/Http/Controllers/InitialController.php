@@ -150,23 +150,36 @@ class InitialController
         $req = $request->getParsedBody();
         $cekToken = WalletModels::cekToken( str_replace("Token ", "", $token[0]) );
         $wallet = WalletModels::cekWallet( $cekToken[0]->id);
-
-        var_dump($wallet); die;
-        if(!empty($dataUser)){
-            $status = 200;
-            $result = [
-                "status"=> "success",
-                "data" => [
-                    "deposit" => [
-                        "id"=> "ea0212d3-abd6-406f-8c67-868e814a2433",
-                        "deposited_by"=> $dataParse->id,
+        if($req){
+            if($wallet){
+                $lastBalance = $wallet[0]->saldo + $req['amount'];
+                $uuid = Uuid::uuid4()->toString();
+                $dataDepo = [
+                    $uuid,
+                    $req['amount'],
+                    $req['reference_id'],
+                    $wallet[0]->owned_by,
+                    $wallet[0]->id,
+                    'deposit'
+                ];
+                $deposit =  WalletModels::transactions($dataDepo, $lastBalance);
+                if($deposit){
+                    $status = 201;
+                    $result = [
                         "status"=> "success",
-                        "deposited_at"=> "1994-11-05T08:15:30-05:00",
-                        "amount"=> $req['amount'],
-                        "reference_id"=> $req['reference_id']
-                    ]
-                ]
-            ];
+                        "data" => [
+                            "deposit" => [
+                                "id"=> $uuid,
+                                "deposited_by"=> $wallet[0]->owned_by,
+                                "status"=> "success",
+                                "deposited_at"=> date('Y-m-d H:i:s'),
+                                "amount"=> $req['amount'],
+                                "reference_id"=> $req['reference_id']
+                            ]
+                        ]
+                    ];
+                }
+            }
         }
 
         $response->getBody()->write(json_encode($result));
@@ -174,31 +187,47 @@ class InitialController
     } 
     
     public function withdrawals( $request,  $response){
-        $status = 400;
+         $status = 400;
         $result = [
                 "status"=> "fail",
-                "data" => ["error" =>  "Disabled"]
+                "data" => ["error" =>  "failed to deposits"]
         ];
         $token = $request->getHeader("Authorization"); 
 
+        $token = $request->getHeader("Authorization"); 
         $req = $request->getParsedBody();
-        $dataUser = WalletModels::cekToken( str_replace("Token ", "", $token[0]) );
-        $dataParse = json_decode($dataUser);
-        if(!empty($dataUser)){
-            $status = 200;
-            $result = [
-                "status"=> "success",
-                "data" => [
-                    "withdrawal" => [
-                          "id"=> "ea0212d3-abd6-406f-8c67-868e814a2433",
-                            "withdrawn_by"=> $dataParse->id,
-                            "status"=> "success",
-                            "withdrawn_at"=> "1994-11-05T08:15:30-05:00",
-                             "amount"=> $req['amount'],
-                        "reference_id"=> $req['reference_id']
-                    ]
-                ]
-            ];
+        $cekToken = WalletModels::cekToken( str_replace("Token ", "", $token[0]) );
+        $wallet = WalletModels::cekWallet( $cekToken[0]->id);
+        if($req){
+            if($wallet){
+                $lastBalance = $wallet[0]->saldo - $req['amount'];
+                $uuid = Uuid::uuid4()->toString();
+                $dataDepo = [
+                    $uuid,
+                    $req['amount'],
+                    $req['reference_id'],
+                    $wallet[0]->owned_by,
+                    $wallet[0]->id,
+                    'withdraw'
+                ];
+                $deposit =  WalletModels::transactions($dataDepo, $lastBalance);
+                if($deposit){
+                    $status = 201;
+                    $result = [
+                        "status"=> "success",
+                        "data" => [
+                            "deposit" => [
+                                "id"=> $uuid,
+                                "deposited_by"=> $wallet[0]->owned_by,
+                                "status"=> "success",
+                                "deposited_at"=> date('Y-m-d H:i:s'),
+                                "amount"=> $req['amount'],
+                                "reference_id"=> $req['reference_id']
+                            ]
+                        ]
+                    ];
+                }
+            }
         }
 
         $response->getBody()->write(json_encode($result));
