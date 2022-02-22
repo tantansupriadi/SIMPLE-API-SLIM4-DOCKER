@@ -1,62 +1,94 @@
 <?php
 
 namespace App\Http\Models;
-
+use App\Config\DB;
+use \PDO;
 class WalletModels
-{
-    private function dataUSer(){
-        return [
-            "id" => "526ea8b2-428e-403b-b9fd-f10972e0d6fe",
-            "name" => "tantan supriadi",
-            "customer_xid" => "ea0212d3-abd6-406f-8c67-868e814a2436",
-            "token" => "cb04f9f26632ad602f14acef21c58f58f6fe5fb55a",
-        ];
-    }
-    private function wallet(){
-        return  [
-            "id" => "c4d7d61f-b702-44a8-af97-5dbdafa96551",
-            "account" => "c4d7d61f-b702-44a8-af97-5dbdafa96551",
-            "user_id"=> "526ea8b2-428e-403b-b9fd-f10972e0d6fe",
-            "balance" => 0,
-            "customer_xid" => "ea0212d3-abd6-406f-8c67-868e814a2436",
-            "status" => "enabled",
-            "enable_at" => "1994-11-05T08:15:30-05:00",
-            "disable_at" => "1994-11-05T08:15:30-05:00",
-        ];
-    }
-
-    
-    public function cekUser($data)
+{   
+    public static function cekCustomer($id)
     {
-        $dataUser = WalletModels::dataUser();
-        if($dataUser['customer_xid'] != $data){
-            return [];
-        }
-        return json_encode($dataUser);
+        $db = new DB();
+        $conn = $db->connect();
+        $sql = "SELECT id FROM customer where id = '".$id. "'";
+        $stmt = $conn->query($sql);
+        $customers = $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $customers;
     }
 
-    public function cekToken($token)
+    public static function cekAccount($id)
     {
-        $dataUser = WalletModels::dataUser();
-    
-        if($dataUser['token'] != $token){
-            return [];
-        }
+        $db = new DB();
+        $conn = $db->connect();
+        $sql = "SELECT token FROM account where customer_id = '".$id. "'";
+        $stmt = $conn->query($sql);
+        $customers = $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $customers;
+    }
 
-        return json_encode($dataUser);
+    public static function generateAccount($data)
+    {
+        $cek_account = WalletModels::cekAccount($data[1]);
+        if(!$cek_account){
+             $db = new DB();
+            $conn = $db->connect();
+            $sql = "INSERT INTO account (id,customer_id,token) values (?,?,?)";
+            $stmt = $conn->prepare($sql);
+            $customers =  $stmt->execute($data);
+            return $data[2] ;
+        }
+        return $cek_account[0]->token;
+    }
+    
+    public static function enableWallet($data)
+    {
+        $cek_wallet = WalletModels::cekWallet($data[1]);
+        if(!$cek_wallet){
+            $db = new DB();
+            $conn = $db->connect();
+            $sql = "INSERT INTO wallet (id,owned_by,is_enable) values (?,?,?)";
+            $stmt = $conn->prepare($sql);
+            $customers =  $stmt->execute($data);
+            return $data[1] ;
+        }
+        return $cek_wallet[0]->id;
+    }
+
+    public static function cekToken($token)
+    {
+        $db = new DB();
+        $conn = $db->connect();
+        $sql = "SELECT * FROM account where token = '".$token. "'";
+        $stmt = $conn->query($sql);
+        $token = $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $token;
     } 
-    
-    public function cekWallet($id)
-    {
-      
-        $wallet = WalletModels::wallet();
-    
-        if($id != $wallet['user_id']){
-            return [];
-        }
 
-        return json_encode($wallet);
+    public static function cekWallet($account_id)
+    {
+        $db = new DB();
+        $conn = $db->connect();
+        $sql = "SELECT * FROM wallet where owned_by = '".$account_id. "'";
+        $stmt = $conn->query($sql);
+        $token = $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $token;
+    } 
+
+    public static function disableWallet($id,$status)
+    {
+        $cek_wallet = WalletModels::cekWallet($id);
+        
+        if($cek_wallet){
+            $db = new DB();
+            $conn = $db->connect();
+            $sql = "UPDATE  wallet SET  is_enable = ?  where owned_by = ?";
+            $stmt = $conn->prepare($sql);
+            $customers =  $stmt->execute([($status == 'true') ? 0 : 1 ,$id]);
+            return $customers ;
+        }
+        return $cek_wallet[0]->id;
     }
+    
+   
 
 
 }

@@ -1,6 +1,21 @@
 version: "3.8"
 
 services:
+  db:
+    image: mysql:5.7.22
+    restart: always
+    environment:
+      MYSQL_DATABASE: "mini-wallet"
+      MYSQL_USER: "tantan"
+      MYSQL_PASSWORD: "12345"
+      MYSQL_ROOT_PASSWORD: "12345"
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    volumes:
+      - my-db:/var/lib/mysql
+
   php:
     container_name: wallet_php
     build:
@@ -20,3 +35,15 @@ services:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_USER: "tantan"
+      PMA_PASSWORD: "12345"
+    ports:
+      - "8081:80"
+
+volumes:
+  my-db:

@@ -5,6 +5,7 @@ use DI\Bridge\Slim\Bridge as SlimAppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+
 $container = new Container;
 
 $settings = require __DIR__ . '/../app/settings.php';
@@ -17,5 +18,6 @@ $middleware($app);
 
 $routes = require __DIR__ . '/../app/routes.php';
 $routes($app);
+
 
 $app->run();
