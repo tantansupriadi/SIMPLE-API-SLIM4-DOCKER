@@ -1,4 +1,4 @@
-Mini API with SLIM
+Mini API with SLIM 4 with DOCKER and simple case and database MYSQL
 Case mini wallet
 
 how to run
