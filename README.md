@@ -1,4 +1,5 @@
-Mini api for julo test
+Mini API with SLIM
+Case mini wallet
 
 how to run
 
