@@ -1,6 +1,18 @@
 Mini API with SLIM 4 with DOCKER and simple case and database MYSQL
 Case mini wallet
 
+what's done
+
+- raw query with model
+- manual uuid
+- manual auth
+
+Todo
+
+- add orm
+- add validation
+- add auth 3rd party
+
 how to run
 
 - clone the repo on your local environment
